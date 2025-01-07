@@ -30,7 +30,7 @@ public class EndOfLifeService implements Function<EndOfLifeService.Request, EndO
         log.info("End of Life API Request: {}", request);
         ParameterizedTypeReference<List<Cycle>> typeReference = new ParameterizedTypeReference<>() {};
         List<Cycle> cycles = restClient.get()
-                .uri("/{product}.json", request.product())
+                .uri("/{product}.json", request.product().replaceAll("\\s", "-"))
                 .accept(APPLICATION_JSON)
                 .retrieve()
                 .toEntity(typeReference)

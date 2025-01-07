@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@RestController
+@RestController
 public class ChatController {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
