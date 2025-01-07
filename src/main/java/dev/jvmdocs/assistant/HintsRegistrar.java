@@ -1,4 +1,4 @@
-package dev.danvega.sbdocs;
+package dev.jvmdocs.assistant;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;

@@ -1,4 +1,4 @@
-package dev.danvega.sbdocs;
+package dev.jvmdocs.assistant;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package dev.danvega.sbdocs;
+package dev.jvmdocs.assistant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

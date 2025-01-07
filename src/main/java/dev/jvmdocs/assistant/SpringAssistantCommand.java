@@ -1,6 +1,8 @@
-package dev.danvega.sbdocs;
+package dev.jvmdocs.assistant;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
@@ -26,7 +28,11 @@ public class SpringAssistantCommand {
 
     public SpringAssistantCommand(ChatClient.Builder builder, VectorStore vectorStore) {
         this.vectorStore = vectorStore;
-        this.chatClient = builder.build();
+        this.chatClient = builder
+                .defaultAdvisors(
+                        new MessageChatMemoryAdvisor(new InMemoryChatMemory())
+                )
+                .build();
     }
 
     @Command(command = "q")

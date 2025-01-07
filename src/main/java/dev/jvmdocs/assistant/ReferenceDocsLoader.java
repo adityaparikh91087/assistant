@@ -1,4 +1,4 @@
-package dev.danvega.sbdocs;
+package dev.jvmdocs.assistant;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -7,22 +7,17 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.ExtractedTextFormatter;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
-import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
-@Component
+// do this only once @Component
 public class ReferenceDocsLoader {
 
     private static final Logger log = LoggerFactory.getLogger(ReferenceDocsLoader.class);

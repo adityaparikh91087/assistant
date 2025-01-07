@@ -8,11 +8,11 @@
 		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>dev.danvega</groupId>
-	<artifactId>sbdocs</artifactId>
+	<groupId>dev.jvmdocs</groupId>
+	<artifactId>assistant</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
-	<description>Demo project for Spring Boot</description>
+	<name>jvm-docs-assistant</name>
+	<description>JVM Docs Assistant using Spring AI - OpenAI with Chroma vector store</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -82,6 +82,11 @@
 			<groupId>org.springframework.shell</groupId>
 			<artifactId>spring-shell-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
