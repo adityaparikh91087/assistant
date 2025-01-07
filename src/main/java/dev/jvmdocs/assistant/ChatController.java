@@ -10,46 +10,45 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.core.io.Resource;
-import org.springframework.shell.command.annotation.Command;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Command
-public class SpringAssistantCommand {
-
+//@RestController
+public class ChatController {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     @Value("classpath:/prompts/spring-boot-reference.st")
     private Resource sbPromptTemplate;
 
-    public SpringAssistantCommand(ChatClient.Builder builder, VectorStore vectorStore) {
-        this.vectorStore = vectorStore;
+    public ChatController(ChatClient.Builder builder, VectorStore vectorStore) {
         this.chatClient = builder
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(new InMemoryChatMemory())
                 )
                 .defaultFunctions("endOfLifeFunction")
                 .build();
+        this.vectorStore = vectorStore;
     }
 
-    @Command(command = "q")
-    public String question(@DefaultValue(value = "What is Spring Boot") String question) {
-        var similarDocuments = findSimilarDocuments(question);
-
+    @GetMapping("/")
+    public Flux<String> chat(@RequestParam(defaultValue = "What is spring boot?") String query) {
+        var similarDocuments = findSimilarDocuments(query);
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
         var systemMessage = systemPromptTemplate.createMessage(
                 Map.of("documents", similarDocuments));
 
-        var userMessage = new UserMessage(question);
+        var userMessage = new UserMessage(query);
         var prompt = new Prompt(List.of(systemMessage, userMessage));
         return chatClient.prompt(prompt)
-                .call()
+                .stream()
                 .content();
-
     }
 
     private String findSimilarDocuments(String message) {

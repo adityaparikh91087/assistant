@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-// do this only once @Component
+// do this only once
+// @Component
 public class ReferenceDocsLoader {
 
     private static final Logger log = LoggerFactory.getLogger(ReferenceDocsLoader.class);

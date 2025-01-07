@@ -2,7 +2,7 @@ spring:
   main:
     web-application-type: none
   application:
-    name: sbdocs
+    name: jvmdocs
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -24,8 +24,8 @@ spring:
       enabled: true
     script:
       enabled: true
-#  main:
-#    banner-mode: off
+main:
+  banner-mode: off
 logging:
   level:
     root: info
