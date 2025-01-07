@@ -37,7 +37,6 @@ public class SpringAssistantCommand {
 
     @Command(command = "q")
     public String question(@DefaultValue(value = "What is Spring Boot") String question) {
-        // Querying the VectorStore using natural language looking for the information about a person.
         var similarDocuments = findSimilarDocuments(question);
 
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
