@@ -13,22 +13,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 // do this only once
-// @Component
-public class ReferenceDocsLoader {
+//@Service
+public class IngestionService {
 
-    private static final Logger log = LoggerFactory.getLogger(ReferenceDocsLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(IngestionService.class);
     private final VectorStore vectorStore;
     @Value("classpath:/docs/spring-boot-reference.pdf")
-    private Resource pdfResource;
+    private Resource springBootReference;
     @Value("classpath:/docs/gradle_userguide.pdf")
     private Resource gradleUserGuide;
 
-    public ReferenceDocsLoader(VectorStore vectorStore) {
+    public IngestionService(VectorStore vectorStore) {
         this.vectorStore = vectorStore;
     }
 
@@ -37,13 +37,14 @@ public class ReferenceDocsLoader {
 
         log.info("Loading Spring Boot Reference PDF into Vector Store");
         var config = PdfDocumentReaderConfig.builder()
-                .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder().withNumberOfBottomTextLinesToDelete(0)
+                .withPageExtractedTextFormatter(new ExtractedTextFormatter.Builder()
+                        .withNumberOfBottomTextLinesToDelete(0)
                         .withNumberOfTopPagesToSkipBeforeDelete(0)
                         .build())
                 .withPagesPerDocument(1)
                 .build();
 
-        addToVectorStore(pdfResource, config);
+        addToVectorStore(springBootReference, config);
         addToVectorStore(gradleUserGuide, config);
         log.info("Application is ready");
     }
