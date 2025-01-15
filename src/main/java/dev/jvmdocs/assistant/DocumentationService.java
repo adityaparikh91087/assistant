@@ -2,6 +2,7 @@ package dev.jvmdocs.assistant;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -10,50 +11,54 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.core.io.Resource;
-import org.springframework.shell.command.annotation.Command;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Command
-public class SpringAssistantCommand {
+
+@Service
+public class DocumentationService {
 
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
-    @Value("classpath:/prompts/spring-boot-reference.st")
-    private Resource sbPromptTemplate;
+    private final Resource sbPromptTemplate;
 
-    public SpringAssistantCommand(ChatClient.Builder builder, VectorStore vectorStore) {
+    public DocumentationService(ChatClient.Builder builder,
+                                VectorStore vectorStore,
+                                @Value("classpath:/prompts/spring-boot-reference.st") Resource sbPromptTemplate) {
+        this.sbPromptTemplate = sbPromptTemplate;
         this.vectorStore = vectorStore;
         this.chatClient = builder
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(new InMemoryChatMemory())
+                        new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
+                        new SimpleLoggerAdvisor()
                 )
                 .defaultFunctions("endOfLifeFunction")
                 .build();
     }
 
-    @Command(command = "q")
-    public String question(@DefaultValue(value = "What is Spring Boot") String question) {
-        var similarDocuments = findSimilarDocuments(question);
-
+    public Flux<String> chat(String query) {
+        var similarDocuments = findSimilarDocuments(query);
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
         var systemMessage = systemPromptTemplate.createMessage(
                 Map.of("documents", similarDocuments));
 
-        var userMessage = new UserMessage(question);
+        var userMessage = new UserMessage(query);
         var prompt = new Prompt(List.of(systemMessage, userMessage));
-        return chatClient.prompt(prompt)
-                .call()
-                .content();
 
+        return chatClient.prompt(prompt)
+                .stream()
+                .content();
     }
 
     private String findSimilarDocuments(String message) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(3));
+        List<Document> similarDocuments = vectorStore.similaritySearch(
+                SearchRequest.query(message)
+                        .withTopK(3));
         return similarDocuments.stream()
                 .map(Document::getContent)
                 .collect(Collectors.joining(System.lineSeparator()));

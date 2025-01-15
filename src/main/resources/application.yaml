@@ -24,6 +24,9 @@ spring:
       enabled: true
     script:
       enabled: true
+  threads:
+    virtual:
+      enabled: true
 main:
   banner-mode: off
 logging:

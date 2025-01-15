@@ -1,4 +1,4 @@
-package dev.jvmdocs.assistant;
+package dev.jvmdocs.assistant.shell;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
