@@ -2,6 +2,8 @@
 plugins {
     `java-library`
     `maven-publish`
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 repositories {
@@ -16,18 +18,20 @@ repositories {
 }
 
 dependencies {
-    api(libs.org.springframework.boot.spring.boot.starter.web)
-    api(libs.org.springframework.boot.spring.boot.starter.aop)
-    api(libs.org.springframework.boot.spring.boot.starter.actuator)
-    api(libs.org.springframework.ai.spring.ai.chroma.store.spring.boot.starter)
-    api(libs.org.springframework.ai.spring.ai.openai.spring.boot.starter)
-    api(libs.org.springframework.ai.spring.ai.pdf.document.reader)
-    api(libs.org.springframework.shell.spring.shell.starter)
-    runtimeOnly(libs.org.springframework.boot.spring.boot.docker.compose)
-    runtimeOnly(libs.org.springframework.ai.spring.ai.spring.boot.docker.compose)
-    runtimeOnly(libs.org.springframework.boot.spring.boot.devtools)
-    testImplementation(libs.org.springframework.boot.spring.boot.starter.test)
-    testImplementation(libs.org.springframework.shell.spring.shell.starter.test)
+    implementation(platform(libs.spring.ai.bom))
+    implementation(platform(libs.spring.shell.bom))
+    api(libs.spring.boot.starter.web)
+    api(libs.spring.boot.starter.aop)
+    api(libs.spring.boot.starter.actuator)
+    api(libs.spring.ai.chroma.store.spring.boot.starter)
+    api(libs.spring.ai.openai.spring.boot.starter)
+    api(libs.spring.ai.pdf.document.reader)
+    api(libs.spring.shell.starter)
+    runtimeOnly(libs.spring.boot.docker.compose)
+    runtimeOnly(libs.spring.ai.spring.boot.docker.compose)
+    runtimeOnly(libs.spring.boot.devtools)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.spring.shell.starter.test)
 }
 
 group = "dev.jvmdocs"
