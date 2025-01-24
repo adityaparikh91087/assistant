@@ -1,0 +1,39 @@
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: jvmdocs
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+      embedding:
+        options:
+          model: text-embedding-3-large
+    vectorstore:
+      chroma:
+        initialize-schema: true
+        collection-name: sbdocs
+  docker:
+    compose:
+      lifecycle-management: start_only
+  shell:
+    interactive:
+      enabled: true
+    script:
+      enabled: true
+  threads:
+    virtual:
+      enabled: true
+main:
+  banner-mode: off
+logging:
+  level:
+    root: info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics

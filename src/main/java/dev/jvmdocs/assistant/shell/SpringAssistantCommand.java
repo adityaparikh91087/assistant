@@ -18,6 +18,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * SpringAssistantCommand is a shell command component that integrates with a chat client
+ * and vector-based search capabilities to provide intelligent query responses.
+ *
+ * This class leverages the functionality of a {@link ChatClient} and a {@link VectorStore}
+ * to process user-provided questions, find similar documents, and construct responses
+ * using a system prompt template.
+ *
+ * The command is registered under the alias "q" and handles queries to provide relevant
+ * information based on the context and similarity search from a predefined knowledge base.
+ *
+ * Key functionality:
+ * - Executes a similarity search for documents based on user queries using {@link VectorStore}.
+ * - Constructs system messages using a prompt template provided as a resource.
+ * - Interacts with the {@link ChatClient} to generate responses.
+ */
 @Command
 public class SpringAssistantCommand {
 
