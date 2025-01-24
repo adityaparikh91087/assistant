@@ -20,6 +20,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
+/**
+ * The DocumentationService class is responsible for providing chat-based interactions
+ * using a pre-defined prompt template and a collection of documents. It integrates a
+ * chat client and a vector store to handle queries and retrieve relevant information.
+ *
+ * This service enables users to input queries, processes the input to identify
+ * related documents using similarity search, and generates responses using a chat client.
+ */
 @Service
 public class DocumentationService {
 
@@ -42,17 +50,27 @@ public class DocumentationService {
     }
 
     public Flux<String> chat(String query) {
+        var prompt = getPrompt(query);
+        return chatClient.prompt(prompt)
+                .stream()
+                .content();
+    }
+
+    public String ask(String query) {
+        var prompt = getPrompt(query);
+        return chatClient.prompt(prompt)
+                .call()
+                .content();
+    }
+
+    private Prompt getPrompt(String query) {
         var similarDocuments = findSimilarDocuments(query);
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
         var systemMessage = systemPromptTemplate.createMessage(
                 Map.of("documents", similarDocuments));
-
         var userMessage = new UserMessage(query);
         var prompt = new Prompt(List.of(systemMessage, userMessage));
-
-        return chatClient.prompt(prompt)
-                .stream()
-                .content();
+        return prompt;
     }
 
     private String findSimilarDocuments(String message) {
