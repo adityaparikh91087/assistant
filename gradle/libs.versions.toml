@@ -1,6 +1,6 @@
 
 [versions]
-spring-ai = "1.0.0-M4"
+spring-ai = "1.0.0-M5"
 spring-boot = "3.3.4"
 spring-shell = "3.4.0"
 
