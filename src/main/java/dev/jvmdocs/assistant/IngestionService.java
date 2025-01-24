@@ -16,6 +16,9 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Service for ingesting documents into a vector store for further processing or search capabilities.
@@ -29,7 +32,7 @@ import java.util.List;
  * and provides a method for adding documents programmatically.
  */
 // do this only once
-// @Service
+ @Service
 public class IngestionService {
 
     private static final Logger log = LoggerFactory.getLogger(IngestionService.class);
@@ -44,7 +47,7 @@ public class IngestionService {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws ExecutionException, InterruptedException {
 
         log.info("Loading Spring Boot Reference PDF into Vector Store");
         var config = PdfDocumentReaderConfig.builder()
@@ -55,8 +58,12 @@ public class IngestionService {
                 .withPagesPerDocument(1)
                 .build();
 
-        addToVectorStore(springBootReference, config);
-        addToVectorStore(gradleUserGuide, config);
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+           var springBoot = executor.submit(() -> addToVectorStore(springBootReference, config));
+  //         var gradle = executor.submit(() -> addToVectorStore(gradleUserGuide, config));
+           springBoot.get();
+   //        gradle.get();
+        }
         log.info("Application is ready");
     }
 
