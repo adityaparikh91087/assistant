@@ -50,17 +50,27 @@ public class DocumentationService {
     }
 
     public Flux<String> chat(String query) {
+        var prompt = getPrompt(query);
+        return chatClient.prompt(prompt)
+                .stream()
+                .content();
+    }
+
+    public String ask(String query) {
+        var prompt = getPrompt(query);
+        return chatClient.prompt(prompt)
+                .call()
+                .content();
+    }
+
+    private Prompt getPrompt(String query) {
         var similarDocuments = findSimilarDocuments(query);
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
         var systemMessage = systemPromptTemplate.createMessage(
                 Map.of("documents", similarDocuments));
-
         var userMessage = new UserMessage(query);
         var prompt = new Prompt(List.of(systemMessage, userMessage));
-
-        return chatClient.prompt(prompt)
-                .stream()
-                .content();
+        return prompt;
     }
 
     private String findSimilarDocuments(String message) {

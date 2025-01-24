@@ -16,10 +16,7 @@ public class SpringAssistantCommand {
 
     @Command(command = "q")
     public String question(@DefaultValue(value = "What is Spring Boot") String question) {
-        return documentationService.chat(question)
-                .collect(StringBuilder::new, StringBuilder::append)
-                .map(StringBuilder::toString)
-                .block();
+        return documentationService.ask(question);
 
     }
 

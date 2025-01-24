@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
  * and provides a method for adding documents programmatically.
  */
 // do this only once
- @Service
+// @Service
 public class IngestionService {
 
     private static final Logger log = LoggerFactory.getLogger(IngestionService.class);
@@ -58,12 +58,7 @@ public class IngestionService {
                 .withPagesPerDocument(1)
                 .build();
 
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-           var springBoot = executor.submit(() -> addToVectorStore(springBootReference, config));
-  //         var gradle = executor.submit(() -> addToVectorStore(gradleUserGuide, config));
-           springBoot.get();
-   //        gradle.get();
-        }
+        addToVectorStore(springBootReference, config);
         log.info("Application is ready");
     }
 
