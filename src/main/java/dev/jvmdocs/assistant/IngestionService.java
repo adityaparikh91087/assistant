@@ -15,6 +15,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -32,7 +33,7 @@ import java.util.concurrent.Future;
  * and provides a method for adding documents programmatically.
  */
 // do this only once
-// @Service
+//@Service
 public class IngestionService {
 
     private static final Logger log = LoggerFactory.getLogger(IngestionService.class);
@@ -41,6 +42,10 @@ public class IngestionService {
     private Resource springBootReference;
     @Value("classpath:/docs/gradle_userguide.pdf")
     private Resource gradleUserGuide;
+    @Value("classpath:/docs/apache-solr-ref-guide-8.1.pdf")
+    private Resource solrReference;
+    @Value("classpath:/docs/Solr_in_Action.pdf")
+    private Resource solrInAction;
 
     public IngestionService(VectorStore vectorStore) {
         this.vectorStore = vectorStore;
@@ -58,7 +63,7 @@ public class IngestionService {
                 .withPagesPerDocument(1)
                 .build();
 
-        addToVectorStore(springBootReference, config);
+        addToVectorStore(solrInAction, config);
         log.info("Application is ready");
     }
 
@@ -71,7 +76,9 @@ public class IngestionService {
         var pdfReader = new PagePdfDocumentReader(pdfResource, config);
         var textSplitter = new TokenTextSplitter();
         List<Document> documents = textSplitter.apply(pdfReader.get());
-        vectorStore.add(documents);
+        documents.stream()
+                .parallel()
+                .forEach(document -> vectorStore.add(Collections.singletonList(document)));
         log.info("Done");
     }
 }

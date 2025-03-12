@@ -21,6 +21,6 @@ public class ChatController {
 
     @GetMapping("/")
     public Flux<String> chat(@RequestParam(defaultValue = "What is spring boot?") String query) {
-        return documentationService.chat(query);
+        return documentationService.chat(query).retry(3);
     }
 }

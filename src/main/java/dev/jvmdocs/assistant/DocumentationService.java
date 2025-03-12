@@ -37,7 +37,7 @@ public class DocumentationService {
 
     public DocumentationService(ChatClient.Builder builder,
                                 VectorStore vectorStore,
-                                @Value("classpath:/prompts/spring-boot-reference.st") Resource sbPromptTemplate) {
+                                @Value("classpath:/prompts/system_prompt.st") Resource sbPromptTemplate) {
         this.sbPromptTemplate = sbPromptTemplate;
         this.vectorStore = vectorStore;
         this.chatClient = builder
@@ -45,7 +45,6 @@ public class DocumentationService {
                         new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
                         new SimpleLoggerAdvisor()
                 )
-                .defaultFunctions("endOfLifeFunction")
                 .build();
     }
 
@@ -75,10 +74,11 @@ public class DocumentationService {
 
     private String findSimilarDocuments(String message) {
         List<Document> similarDocuments = vectorStore.similaritySearch(
-                SearchRequest.query(message)
-                        .withTopK(3));
+                SearchRequest.builder().query(message)
+                        .topK(3)
+                        .build());
         return similarDocuments.stream()
-                .map(Document::getContent)
+                .map(Document::getFormattedContent)
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
