@@ -1,14 +1,15 @@
 package dev.jvmdocs.assistant;
 
+import dev.jvmdocs.assistant.api.Answer;
+import dev.jvmdocs.assistant.api.Question;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -16,8 +17,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 
 /**
@@ -33,53 +35,50 @@ public class DocumentationService {
 
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
-    private final Resource sbPromptTemplate;
+    private final Resource systemPromptTemplate;
+    private final EndOfLifeService endOfLifeService;
 
     public DocumentationService(ChatClient.Builder builder,
                                 VectorStore vectorStore,
-                                @Value("classpath:/prompts/system_prompt.st") Resource sbPromptTemplate) {
-        this.sbPromptTemplate = sbPromptTemplate;
+                                ChatMemory chatMemory,
+                                @Value("classpath:/prompts/system_prompt.st") Resource systemPromptTemplate, EndOfLifeService endOfLifeService) {
+        this.systemPromptTemplate = systemPromptTemplate;
         this.vectorStore = vectorStore;
+        this.endOfLifeService = endOfLifeService;
+
         this.chatClient = builder
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
-                        new SimpleLoggerAdvisor()
-                )
+                        new MessageChatMemoryAdvisor(chatMemory), // CHAT MEMORY
+                        new QuestionAnswerAdvisor(vectorStore), // RAG
+                        new SimpleLoggerAdvisor())
                 .build();
     }
 
-    public Flux<String> chat(String query) {
-        var prompt = getPrompt(query);
+    public Flux<String> chat(Question question, String chatId) {
+        var prompt = getPrompt(question);
         return chatClient.prompt(prompt)
+                .advisors(advisorSpec -> advisorSpec
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
                 .stream()
                 .content();
     }
 
-    public String ask(String query) {
-        var prompt = getPrompt(query);
+    public Answer ask(Question question, String chatId) {
+        var prompt = getPrompt(question);
         return chatClient.prompt(prompt)
+                .advisors(advisorSpec -> advisorSpec
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
                 .call()
-                .content();
+                .entity(Answer.class);
     }
 
-    private Prompt getPrompt(String query) {
-        var similarDocuments = findSimilarDocuments(query);
-        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(sbPromptTemplate);
-        var systemMessage = systemPromptTemplate.createMessage(
-                Map.of("documents", similarDocuments));
-        var userMessage = new UserMessage(query);
-        var prompt = new Prompt(List.of(systemMessage, userMessage));
-        return prompt;
-    }
-
-    private String findSimilarDocuments(String message) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(
-                SearchRequest.builder().query(message)
-                        .topK(3)
-                        .build());
-        return similarDocuments.stream()
-                .map(Document::getFormattedContent)
-                .collect(Collectors.joining(System.lineSeparator()));
+    private Prompt getPrompt(Question question) {
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(this.systemPromptTemplate);
+        var systemMessage = systemPromptTemplate.createMessage();
+        var userMessage = new UserMessage(question.query());
+        return new Prompt(List.of(systemMessage, userMessage));
     }
 
 }

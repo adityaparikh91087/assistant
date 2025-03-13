@@ -1,8 +1,7 @@
 package dev.jvmdocs.assistant;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import dev.jvmdocs.assistant.api.Question;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 /**
@@ -20,7 +19,9 @@ public class ChatController {
     }
 
     @GetMapping("/")
-    public Flux<String> chat(@RequestParam(defaultValue = "What is spring boot?") String query) {
-        return documentationService.chat(query).retry(3);
+    public Flux<String> chat(@RequestBody Question question,
+                             @RequestHeader(name="X_CONV_ID", defaultValue="defaultConversation") String conversationId) {
+        return documentationService.chat(question, conversationId)
+                .retry(3);
     }
 }
