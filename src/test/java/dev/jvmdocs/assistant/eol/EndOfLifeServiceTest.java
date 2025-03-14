@@ -48,7 +48,7 @@ class EndOfLifeServiceTest {
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(mockEolInfos);
 
         // When
-        EndOfLifeService.Response response = service.apply(request);
+        EndOfLifeService.Response response = service.eol(request);
 
         // Then
         assertThat(response).isNotNull();
@@ -91,7 +91,7 @@ class EndOfLifeServiceTest {
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(mockEolInfos);
 
         // When
-        EndOfLifeService.Response response = service.apply(request);
+        EndOfLifeService.Response response = service.eol(request);
 
         // Then
         assertThat(response).isNotNull();
@@ -111,7 +111,7 @@ class EndOfLifeServiceTest {
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(emptyResponse);
 
         // When
-        EndOfLifeService.Response response = service.apply(request);
+        EndOfLifeService.Response response = service.eol(request);
 
         // Then
         assertThat(response.eolInfos()).isEmpty();
@@ -128,7 +128,7 @@ class EndOfLifeServiceTest {
         when(requestHeadersSpec.retrieve()).thenThrow(HttpServerErrorException.class);
 
         // Then
-        assertThatThrownBy(() -> service.apply(request))
+        assertThatThrownBy(() -> service.eol(request))
             .isInstanceOf(HttpServerErrorException.class);
     }
 
@@ -143,7 +143,7 @@ class EndOfLifeServiceTest {
         when(requestHeadersSpec.retrieve()).thenThrow(ResourceAccessException.class);
 
         // Then
-        assertThatThrownBy(() -> service.apply(request))
+        assertThatThrownBy(() -> service.eol(request))
             .isInstanceOf(ResourceAccessException.class);
     }
 }

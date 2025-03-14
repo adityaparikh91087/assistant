@@ -2,6 +2,7 @@ package dev.jvmdocs.assistant;
 
 import dev.jvmdocs.assistant.api.Answer;
 import dev.jvmdocs.assistant.api.Question;
+import dev.jvmdocs.assistant.eol.EndOfLifeService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
@@ -36,26 +37,38 @@ public class DocumentationService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     private final Resource systemPromptTemplate;
+    private final EndOfLifeService endOfLifeService;
 
     public DocumentationService(ChatClient.Builder builder,
                                 VectorStore vectorStore,
                                 ChatMemory chatMemory,
-                                @Value("classpath:/prompts/system_prompt.st") Resource systemPromptTemplate) {
+                                @Value("classpath:/prompts/system_prompt.st") Resource systemPromptTemplate,
+                                EndOfLifeService endOfLifeService) {
         this.systemPromptTemplate = systemPromptTemplate;
         this.vectorStore = vectorStore;
-
+        this.endOfLifeService = endOfLifeService;
         this.chatClient = builder
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory), // CHAT MEMORY
                         new QuestionAnswerAdvisor(vectorStore), // RAG
                         new SimpleLoggerAdvisor())
-                .defaultFunctions("endOfLifeFunction")
                 .build();
     }
 
     public Flux<String> chat(Question question, String chatId) {
         var prompt = getPrompt(question);
         return chatClient.prompt(prompt)
+                .advisors(advisorSpec -> advisorSpec
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
+                .stream()
+                .content();
+    }
+
+    public Flux<String> eol(EndOfLifeService.Request eolRequest, String chatId) {
+        var prompt = getPrompt(eolRequest);
+        return chatClient.prompt(prompt)
+                .tools(endOfLifeService)
                 .advisors(advisorSpec -> advisorSpec
                         .param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
@@ -71,6 +84,24 @@ public class DocumentationService {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
                 .call()
                 .entity(Answer.class);
+    }
+
+    public EndOfLifeService.Response eolResponse(EndOfLifeService.Request eolRequest, String chatId) {
+        var prompt = getPrompt(eolRequest);
+        return chatClient.prompt(prompt)
+                .tools(endOfLifeService)
+                .advisors(advisorSpec -> advisorSpec
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
+                .call()
+                .entity(EndOfLifeService.Response.class);
+    }
+
+    private Prompt getPrompt(EndOfLifeService.Request eolRequest) {
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(this.systemPromptTemplate);
+        var systemMessage = systemPromptTemplate.createMessage();
+        var userMessage = new UserMessage(eolRequest.product());
+        return new Prompt(List.of(systemMessage, userMessage));
     }
 
     private Prompt getPrompt(Question question) {
