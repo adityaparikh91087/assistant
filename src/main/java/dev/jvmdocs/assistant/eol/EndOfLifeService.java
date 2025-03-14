@@ -1,4 +1,4 @@
-package dev.jvmdocs.assistant;
+package dev.jvmdocs.assistant.eol;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

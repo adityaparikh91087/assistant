@@ -21,14 +21,7 @@ public class ChatController {
     @GetMapping("/")
     public Flux<String> chat(@RequestBody Question question,
                              @RequestHeader(name="X_CONV_ID", defaultValue="defaultConversation") String conversationId) {
-        java.util.concurrent.atomic.AtomicInteger attempts = new java.util.concurrent.atomic.AtomicInteger(0);
-        return reactor.core.publisher.Flux.defer(() -> {
-            attempts.incrementAndGet();
-            return documentationService.chat(question, conversationId);
-        }).doOnError(e -> {
-            if (attempts.get() >= 4) {
-                throw reactor.core.Exceptions.propagate(e);
-            }
-        }).retry(3);
+            return documentationService.chat(question, conversationId)
+                    .retry(3);
     }
 }

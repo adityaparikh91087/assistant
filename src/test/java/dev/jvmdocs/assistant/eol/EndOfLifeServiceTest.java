@@ -1,4 +1,4 @@
-package dev.jvmdocs.assistant;
+package dev.jvmdocs.assistant.eol;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

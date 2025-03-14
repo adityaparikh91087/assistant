@@ -1,4 +1,4 @@
-package dev.jvmdocs.assistant;
+package dev.jvmdocs.assistant.eol;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +9,6 @@ import java.util.function.Function;
 
 @Configuration
 public class FunctionConfiguration {
-
-    @Bean
-    public RestClient restClient(RestClient.Builder builder, ClientLoggerRequestInterceptor requestInterceptor) {
-        return builder
-                .requestInterceptor(requestInterceptor)
-                .build();
-    }
 
     @Bean
     @Description("Get end of life (eol) information for given product")
