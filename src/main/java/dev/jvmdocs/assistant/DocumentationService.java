@@ -36,21 +36,20 @@ public class DocumentationService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
     private final Resource systemPromptTemplate;
-    private final EndOfLifeService endOfLifeService;
 
     public DocumentationService(ChatClient.Builder builder,
                                 VectorStore vectorStore,
                                 ChatMemory chatMemory,
-                                @Value("classpath:/prompts/system_prompt.st") Resource systemPromptTemplate, EndOfLifeService endOfLifeService) {
+                                @Value("classpath:/prompts/system_prompt.st") Resource systemPromptTemplate) {
         this.systemPromptTemplate = systemPromptTemplate;
         this.vectorStore = vectorStore;
-        this.endOfLifeService = endOfLifeService;
 
         this.chatClient = builder
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory), // CHAT MEMORY
                         new QuestionAnswerAdvisor(vectorStore), // RAG
                         new SimpleLoggerAdvisor())
+                .defaultFunctions("endOfLifeFunction")
                 .build();
     }
 
