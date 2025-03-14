@@ -23,7 +23,6 @@ public class Application {
 	}
 
 
-
 	@Bean
 	public RestClientCustomizer restClientCustomizer() {
 		return restClientBuilder -> {

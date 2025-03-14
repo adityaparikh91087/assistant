@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+// https://www.danvega.dev/blog/spring-boot-rest-client-logging
 @Component
 public class ClientLoggerRequestInterceptor implements ClientHttpRequestInterceptor {
     private static final Logger log = LoggerFactory.getLogger(ClientLoggerRequestInterceptor.class);
