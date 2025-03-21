@@ -1,14 +1,18 @@
 package dev.jvmdocs.assistant;
 
+import dev.jvmdocs.assistant.api.Question;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.ai.evaluation.RelevancyEvaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,30 +33,6 @@ class ApplicationTests {
 
     @Test
     void contextLoads() {
-    }
-
-    @Test
-    void evaluateRelevancy() {
-        String query = "How to write a GraphQL Service?";
-        String answer = documentationService.chat(query)
-                .collectList()
-                .map(strings -> String.join("", strings))
-                .block();
-
-        EvaluationRequest evaluationRequest = new EvaluationRequest(query, answer);
-        EvaluationResponse response = relevancyEvaluator.evaluate(evaluationRequest);
-
-        assertThat(response.isPass())
-                .withFailMessage("""
-                                ========================================
-                                The answer "%s"
-                                is not considered relevant to the question/**/
-                                "%s".
-                                ========================================
-                                """,
-                        answer,
-                        query)
-                .isTrue();
     }
 
 }

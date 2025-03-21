@@ -1,8 +1,6 @@
 spring:
-  main:
-    web-application-type: servlet
   application:
-    name: jvmdocs
+    name: assistant
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -15,7 +13,14 @@ spring:
     vectorstore:
       chroma:
         initialize-schema: true
-        collection-name: sbdocs
+        collection-name: solr_in_action
+    ollama:
+      chat:
+        model: llama3.1
+      embedding:
+        model: mxbai-embed-large
+      init:
+        pull-model-strategy: when_missing
   docker:
     compose:
       lifecycle-management: start_only
@@ -27,6 +32,10 @@ spring:
   threads:
     virtual:
       enabled: true
+  http:
+    client:
+      read-timeout: 300s
+      connect-timeout: 30s
 main:
   banner-mode: off
 logging:
@@ -36,4 +45,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics
+        include: '*'

@@ -1,7 +1,7 @@
 
 [versions]
-spring-boot = "3.3.4"
-spring-ai = "1.0.0-M4"
+spring-boot = "3.4.3"
+spring-ai = "1.0.0-M6"
 spring-shell = "3.4.0"
 
 [plugins]
@@ -11,6 +11,7 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 [libraries]
 spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "spring-ai" }
 spring-ai-chroma-store-spring-boot-starter = { module = "org.springframework.ai:spring-ai-chroma-store-spring-boot-starter" }
+spring-ai-ollama-spring-boot-starter = { module = "org.springframework.ai:spring-ai-ollama-spring-boot-starter" }
 spring-ai-openai-spring-boot-starter = { module = "org.springframework.ai:spring-ai-openai-spring-boot-starter" }
 spring-ai-pdf-document-reader = { module = "org.springframework.ai:spring-ai-pdf-document-reader" }
 spring-ai-spring-boot-docker-compose = { module = "org.springframework.ai:spring-ai-spring-boot-docker-compose" }
@@ -21,6 +22,7 @@ spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-starter-aop" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
 
 spring-shell-bom = { module = "org.springframework.shell:spring-shell-dependencies", version.ref = "spring-shell" }
 spring-shell-starter = { module = "org.springframework.shell:spring-shell-starter" }
